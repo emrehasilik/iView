@@ -5,12 +5,9 @@ import Navbar from '../components/Navbar';
 import AddQuestionPopup from '../popup/Add_Question'; 
 import usePackageQuestionStore from '../store/Add_Question_Store'; 
 import useManageQuestionStore from '../store/Manage_Question_Store'; 
-import EditQuestionPopup from '../popup/Edit_Question';
 
 const PackageTitle = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false); 
-  const [editPopupOpen, setEditPopupOpen] = useState(false); 
-  const [editIndex, setEditIndex] = useState(null); 
   const [packageTitle, setPackageTitle] = useState(''); 
   const questions = usePackageQuestionStore((state) => state.questions); 
   const addQuestionPackage = useManageQuestionStore((state) => state.addQuestionPackage); 
@@ -23,23 +20,18 @@ const PackageTitle = () => {
       addQuestionPackage({ title: packageTitle, questions });
       clearQuestions();
       setPackageTitle('');
-      navigate('/manage-question'); // ManageQuestion sayfasına yönlendir
+      navigate('/manage-question'); // Redirect to ManageQuestion page
     }
-  };
-
-  // Soru düzenleme popup'ını açma
-  const handleEdit = (index) => {
-    setEditIndex(index);
-    setEditPopupOpen(true);
   };
 
   return (
     <div className="relative w-full h-full">
-      {(isPopupOpen || editPopupOpen) && <div className="absolute inset-0 bg-gray-600 opacity-50 z-10"></div>}
+      {/* Popup Açıkken Arka Plan Gri */}
+      {isPopupOpen && <div className="absolute inset-0 bg-gray-600 opacity-50 z-10"></div>}
 
       <div className="flex w-full h-full">
         <Sidebar />
-        <div className={`flex-grow p-8 ${isPopupOpen || editPopupOpen ? 'pointer-events-none' : ''}`}>
+        <div className={`flex-grow p-8 ${isPopupOpen ? 'pointer-events-none' : ''}`}>
           <Navbar />
 
           <div className="flex justify-between items-center mb-6 mt-4">
@@ -75,7 +67,6 @@ const PackageTitle = () => {
                 <div>{q.question}</div>
                 <div>{q.minutes} min</div>
                 <div className="flex space-x-2">
-                
                   <button className="text-red-500" onClick={() => removeQuestion(index)}>🗑️</button>
                 </div>
               </div>
@@ -89,16 +80,8 @@ const PackageTitle = () => {
         </div>
       </div>
 
+      {/* Add Question Popup */}
       {isPopupOpen && <AddQuestionPopup setIsPopupOpen={setIsPopupOpen} />}
-
-      {editPopupOpen && (
-        <EditQuestionPopup
-          setEditPopupOpen={setEditPopupOpen}
-          question={questions[editIndex]?.question} 
-          minutes={questions[editIndex]?.minutes} 
-          index={editIndex}
-        />
-      )}
     </div>
   );
 };

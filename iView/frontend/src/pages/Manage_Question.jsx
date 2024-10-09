@@ -6,6 +6,7 @@ import useManageQuestionStore from '../store/Manage_Question_Store';
 
 const ManageQuestion = () => {
   const questionPackages = useManageQuestionStore((state) => state.questionPackages);
+  const removeQuestionPackage = useManageQuestionStore((state) => state.removeQuestionPackage); // Silme fonksiyonu
   const navigate = useNavigate(); // navigate fonksiyonu ile yönlendirme yapacağız
 
   return (
@@ -34,21 +35,22 @@ const ManageQuestion = () => {
             <div className="text-center">Action</div>
           </div>
 
-          {/* Eğer soru paketi yoksa bilgi mesajı göster */}
-          {questionPackages.length === 0 ? (
-            <p className="text-center text-lg font-semibold mt-6">A question pack has not been created yet.</p>
-          ) : (
+          {questionPackages.length > 0 ? (
             questionPackages.map((pkg, index) => (
               <div key={index} className="grid grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow mt-2">
                 <div className="text-center">{index + 1}</div>
                 <div>{pkg.title}</div>
                 <div className="text-center">{pkg.questions.length}</div>
                 <div className="flex justify-center space-x-4">
-                  <button className="text-blue-500">✏️</button>
-                  <button className="text-red-500">🗑️</button>
+                  {/* Soru paketi silme butonu */}
+                  <button className="text-red-500" onClick={() => removeQuestionPackage(index)}>
+                    🗑️
+                  </button>
                 </div>
               </div>
             ))
+          ) : (
+            <p className="text-center mt-4">A question pack has not been created yet.</p>
           )}
         </div>
       </div>
