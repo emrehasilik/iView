@@ -21,7 +21,7 @@ const ManageQuestion = () => {
           {/* "+" Butonu ile Package Title sayfasına yönlendirme */}
           <button
             className="bg-gray-300 text-black text-lg font-bold p-2 rounded-full"
-            onClick={() => navigate('/package-title')} // Yönlendirme buradan yapılacak
+            onClick={() => navigate('/package-title')} // PackageTitle sayfasına yönlendirme
           >
             +
           </button>
@@ -42,15 +42,15 @@ const ManageQuestion = () => {
                 <div>{pkg.title}</div>
                 <div className="text-center">{pkg.questions.length}</div>
                 <div className="flex justify-center space-x-4">
-                  {/* Soru paketi silme butonu */}
-                  <button className="text-red-500" onClick={() => removeQuestionPackage(index)}>
-                    🗑️
-                  </button>
+                  {/* Kalem butonu ile edit-package sayfasına yönlendirme */}
+                  <button className="text-blue-500" onClick={() => navigate(`/edit-package/${index}`)}>✏️</button>
+                  {/* Çöp kutusu butonuna basıldığında soru paketini sil */}
+                  <button className="text-red-500" onClick={() => removeQuestionPackage(index)}>🗑️</button>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-center mt-4">A question pack has not been created yet.</p>
+            <div className="text-center">Henüz soru paketi oluşturulmadı.</div>
           )}
         </div>
       </div>

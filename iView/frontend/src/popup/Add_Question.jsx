@@ -34,7 +34,7 @@ const AddQuestionPopup = ({ setIsPopupOpen }) => {
         min="1" // Minimum 1 dakika olarak ayarlanmış
       />
       <div className="flex justify-between">
-        <button className="bg-gray-300 text-black py-2 px-6 rounded-lg" onClick={() => setIsPopupOpen(false)}>
+        <button className="bg-gray-300 text-black py-2 px-6 rounded-lg"  onClick={() => setIsPopupOpen(false)}>
           Cancel
         </button>
         <button className="bg-gray-500 text-white py-2 px-6 rounded-lg" onClick={handleSave}>
