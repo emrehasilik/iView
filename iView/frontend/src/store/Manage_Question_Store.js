@@ -1,13 +1,13 @@
-import {create} from 'zustand';
+import { create } from 'zustand';
 
 const useManageQuestionStore = create((set) => ({
   questionPackages: [],
 
-  addQuestionPackage: (packageData) => {
+  // Soru paketini ekleme
+  addQuestionPackage: (newPackage) =>
     set((state) => ({
-      questionPackages: [...state.questionPackages, packageData],
-    }));
-  },
+      questionPackages: [...state.questionPackages, newPackage],
+    })),
 }));
 
 export default useManageQuestionStore;

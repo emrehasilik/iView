@@ -1,66 +1,54 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import Sidebar from '../components/Sidebar'; 
-import Navbar from '../components/Navbar'; 
-import useManageQuestionStore from '../store/Manage_Question_Store'; // Store'u import ediyoruz
+import { useNavigate } from 'react-router-dom'; // Yönlendirme için gerekli import
+import Sidebar from '../components/Sidebar';
+import Navbar from '../components/Navbar';
+import useManageQuestionStore from '../store/Manage_Question_Store';
 
 const ManageQuestion = () => {
-  const questionPackages = useManageQuestionStore((state) => state.questionPackages); // Soru paketlerini alıyoruz
-  const navigate = useNavigate(); // Sayfalar arası geçiş yapmak için kullanıyoruz
+  const questionPackages = useManageQuestionStore((state) => state.questionPackages);
+  const navigate = useNavigate(); // navigate fonksiyonu ile yönlendirme yapacağız
 
   return (
     <div className="flex w-full h-full">
-      {/* Sol Menü Sidebar */}
       <Sidebar />
 
-      {/* Sağ İçerik Alanı */}
       <div className="flex-grow p-8">
-        {/* Üst Navbar */}
         <Navbar />
 
-        {/* Üst Menü ve "+" Butonu */}
-        <div className="flex justify-between items-center mb-6 mt-4">
-          <h1 className="text-xl font-bold">Manage Question Package</h1>
-          <div className="flex items-center space-x-4">
-            {/* "+" Butonu ile Package Title sayfasına yönlendirme */}
-            <button
-              className="bg-gray-300 text-black text-lg font-bold p-2 rounded-full"
-              onClick={() => navigate('/package-title')}
-            >
-              +
-            </button>
-          </div>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Manage Question Package</h1>
+          {/* "+" Butonu ile Package Title sayfasına yönlendirme */}
+          <button
+            className="bg-gray-300 text-black text-lg font-bold p-2 rounded-full"
+            onClick={() => navigate('/package-title')} // Yönlendirme buradan yapılacak
+          >
+            +
+          </button>
         </div>
 
-        {/* Soru Paketleri Tablosu */}
         <div className="w-full bg-gray-100 rounded-xl shadow p-6">
-          <div className="flex justify-between items-center bg-gray-200 p-4 rounded-lg mb-4">
-            <div>#</div>
+          <div className="grid grid-cols-4 gap-4 bg-gray-200 p-3 rounded-md font-bold">
+            <div className="text-center">#</div>
             <div>Package Name</div>
-            <div>Question Count</div>
-            <div>Action</div>
+            <div className="text-center">Question Count</div>
+            <div className="text-center">Action</div>
           </div>
 
-          {Array.isArray(questionPackages) && questionPackages.length > 0 ? (
-            questionPackages.map((packageItem, packageIndex) => (
-              <div key={packageIndex} className="flex justify-between items-center mb-4 bg-white p-4 rounded-lg shadow">
-                <div>{packageIndex + 1}</div> {/* Paket sırası */}
-                <div>{packageItem.title}</div> {/* Paket Başlığı */}
-                <div>{packageItem.questions.length}</div> {/* Soru sayısı */}
-                <div className="flex space-x-4">
-                  {/* Düzenleme butonu (şu anda sadece simge, fonksiyonlar sonra eklenecek) */}
-                  <button className="text-blue-500">
-                    ✏️
-                  </button>
-                  {/* Silme butonu (şu anda sadece simge, fonksiyonlar sonra eklenecek) */}
-                  <button className="text-red-500">
-                    🗑️
-                  </button>
+          {/* Eğer soru paketi yoksa bilgi mesajı göster */}
+          {questionPackages.length === 0 ? (
+            <p className="text-center text-lg font-semibold mt-6">A question pack has not been created yet.</p>
+          ) : (
+            questionPackages.map((pkg, index) => (
+              <div key={index} className="grid grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow mt-2">
+                <div className="text-center">{index + 1}</div>
+                <div>{pkg.title}</div>
+                <div className="text-center">{pkg.questions.length}</div>
+                <div className="flex justify-center space-x-4">
+                  <button className="text-blue-500">✏️</button>
+                  <button className="text-red-500">🗑️</button>
                 </div>
               </div>
             ))
-          ) : (
-            <p className="text-center">Henüz kaydedilmiş bir soru paketi yok.</p>
           )}
         </div>
       </div>
