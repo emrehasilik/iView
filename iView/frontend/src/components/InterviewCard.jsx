@@ -1,8 +1,10 @@
 // components/InterviewCard.jsx
 import React from 'react';
 import useInterviewStore from '../store/Interview_Store';
+import { useNavigate } from 'react-router-dom';
 
 const InterviewCard = ({ interview, index, removeInterview }) => {
+  const navigate = useNavigate(); // Yönlendirme için useNavigate hook'u
   return (
     <div className="relative bg-white p-6 rounded-lg shadow-md w-[300px] h-[280px]">
       {/* Üst Kısım (Sil ve Copy Link) */}
@@ -40,7 +42,7 @@ const InterviewCard = ({ interview, index, removeInterview }) => {
       {/* Alt Kısım */}
       <div className="mt-4 text-center">
         <p className="text-gray-600 text-sm">Published</p>
-        <button className="text-blue-500 mt-2">See Videos &gt;</button>
+        <button className="text-blue-500 mt-2"  onClick={() => navigate(`/video-collection/${index}`)}>See Videos &gt;</button>
       </div>
     </div>
   );
