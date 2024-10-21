@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom'; // useNavigate'i import edin
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import AddQuestionPopup from '../popup/Add_Question';
@@ -10,15 +10,41 @@ const QuestionPackageEdit = () => {
   const { packageIndex } = useParams(); // URL'den paket indeksini alıyoruz
   const questionPackages = useManageQuestionStore((state) => state.questionPackages);
   const updatePackageQuestions = useManageQuestionStore((state) => state.updatePackageQuestions);
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // Pop-up aç/kapat durumu
-  const addQuestion = usePackageQuestionStore((state) => state.addQuestion);
+  
+  const addedQuestions = usePackageQuestionStore((state) => state.questions);
   const clearQuestions = usePackageQuestionStore((state) => state.clearQuestions);
+
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // Pop-up aç/kapat durumu
+  const [currentQuestions, setCurrentQuestions] = useState([]); // Paket sorularını tutan local state
+
   const packageToEdit = questionPackages[packageIndex]; // Düzenlemek istediğimiz paket
+  const navigate = useNavigate(); // Yönlendirme için useNavigate hook'u
+
+  // İlk render'da packageToEdit içindeki soruları local state'e alıyoruz
+  useEffect(() => {
+    if (packageToEdit) {
+      setCurrentQuestions(packageToEdit.questions);
+    }
+  }, [packageToEdit]);
+
+  // usePackageQuestionStore'dan eklenen soruları dinlemek ve currentQuestions'a eklemek için useEffect
+  useEffect(() => {
+    setCurrentQuestions((prevQuestions) => [...prevQuestions, ...addedQuestions]);
+  }, [addedQuestions]);
 
   // Yeni soru eklediğimizde paketi güncelleme fonksiyonu
   const handleSaveQuestion = () => {
-    updatePackageQuestions(packageIndex, packageToEdit.questions);
+    if (!packageToEdit) return;
+
+    // Paket içindeki sorulara geçici soruları ekleyin
+    const updatedPackageQuestions = [...currentQuestions];
+    updatePackageQuestions(packageIndex, updatedPackageQuestions); // Paket içeriğini güncelle
+
     clearQuestions(); // Popup'a eklenen geçici soruları sıfırla
+
+    // Yönlendirme: Soru kaydedildikten sonra manage-question sayfasına yönlendir
+    navigate('/manage-question');
+
     setIsPopupOpen(false); // Popup'u kapat
   };
 
@@ -52,8 +78,8 @@ const QuestionPackageEdit = () => {
             <div className="text-center">Action</div>
           </div>
 
-          {packageToEdit.questions.length > 0 ? (
-            packageToEdit.questions.map((q, index) => (
+          {currentQuestions.length > 0 ? (
+            currentQuestions.map((q, index) => (
               <div key={index} className="grid grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow mt-2">
                 <div className="text-center">{index + 1}</div>
                 <div>{q.question}</div>
@@ -72,7 +98,7 @@ const QuestionPackageEdit = () => {
         <div className="flex justify-between mt-6">
           <button
             className="bg-gray-500 text-white py-2 px-6 rounded-lg hover:bg-gray-600 transition"
-            onClick={handleSaveQuestion}
+            onClick={handleSaveQuestion} // Bu kısmı kaldırmamamız gerekiyordu
           >
             Save Changes
           </button>
