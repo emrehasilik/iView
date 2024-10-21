@@ -27,10 +27,24 @@ const QuestionPackageEdit = () => {
     }
   }, [packageToEdit]);
 
-  // usePackageQuestionStore'dan eklenen soruları dinlemek ve currentQuestions'a eklemek için useEffect
+  // usePackageQuestionStore'dan eklenen soruları dinlemek ve mevcut sorulara yeni soruları eklemek için
   useEffect(() => {
-    setCurrentQuestions((prevQuestions) => [...prevQuestions, ...addedQuestions]);
+    if (addedQuestions.length > 0) {
+      const filteredQuestions = addedQuestions.filter(
+        (newQuestion) => !currentQuestions.some(
+          (existingQuestion) => existingQuestion.question === newQuestion.question
+        )
+      );
+      setCurrentQuestions((prevQuestions) => [...prevQuestions, ...filteredQuestions]);
+    }
   }, [addedQuestions]);
+
+  // Soru silme fonksiyonu
+  const handleDeleteQuestion = (index) => {
+    setCurrentQuestions((prevQuestions) =>
+      prevQuestions.filter((_, i) => i !== index)
+    );
+  };
 
   // Yeni soru eklediğimizde paketi güncelleme fonksiyonu
   const handleSaveQuestion = () => {
@@ -85,7 +99,13 @@ const QuestionPackageEdit = () => {
                 <div>{q.question}</div>
                 <div className="text-center">{q.minutes} min</div>
                 <div className="flex justify-center">
-                  <button className="text-red-500 hover:text-red-600 transition"></button>
+                  {/* Silme butonu */}
+                  <button
+                    className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition"
+                    onClick={() => handleDeleteQuestion(index)}
+                  >
+                    Sil
+                  </button>
                 </div>
               </div>
             ))
