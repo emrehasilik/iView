@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 
 const useManageQuestionStore = create((set) => ({
@@ -13,13 +14,17 @@ const useManageQuestionStore = create((set) => ({
   updatePackageQuestions: (index, updatedQuestions) =>
     set((state) => {
       const updatedPackages = [...state.questionPackages];
-      
-      // İlgili index'teki paketin sorularını güncelle
       updatedPackages[index] = {
         ...updatedPackages[index],
         questions: updatedQuestions,
       };
+      return { questionPackages: updatedPackages };
+    }),
 
+  // Soru paketini silme fonksiyonu
+  removeQuestionPackage: (index) =>
+    set((state) => {
+      const updatedPackages = state.questionPackages.filter((_, i) => i !== index);
       return { questionPackages: updatedPackages };
     }),
 }));

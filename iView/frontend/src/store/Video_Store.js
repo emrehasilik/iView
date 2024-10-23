@@ -7,18 +7,17 @@ const useVideoStore = create((set) => ({
     { candidateName: 'Ahmet Hamdi Büyükballı', videoUrl: '/assets/deneme.mp4' },
     { candidateName: 'Yusuf Koluş', videoUrl: '/assets/deneme.mp4' },
     { candidateName: 'Furkan Yiğit', videoUrl: '/assets/deneme.mp4' },
-  
   ],
 
   // Video ekleme fonksiyonu
-  addVideo: (video) => 
+  addVideo: (video) =>
     set((state) => ({
       videos: [
-        ...state.videos, 
-        { 
-          ...video, 
-          createdAt: new Date(),   // Default olarak eklenme tarihi
-        }
+        ...state.videos,
+        {
+          ...video,
+          createdAt: new Date(), // Default olarak eklenme tarihi
+        },
       ],
     })),
 
@@ -27,6 +26,14 @@ const useVideoStore = create((set) => ({
     set((state) => ({
       videos: state.videos.filter((_, i) => i !== index),
     })),
+
+  // Video bilgilerini güncelleme fonksiyonu
+  updateVideo: (index, updatedInfo) =>
+    set((state) => {
+      const updatedVideos = [...state.videos];
+      updatedVideos[index] = { ...updatedVideos[index], ...updatedInfo };
+      return { videos: updatedVideos };
+    }),
 }));
 
 export default useVideoStore;

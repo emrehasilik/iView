@@ -1,24 +1,23 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Yönlendirme için gerekli import
+import { useNavigate } from 'react-router-dom'; 
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import useManageQuestionStore from '../store/Manage_Question_Store';
 
 const ManageQuestion = () => {
   const questionPackages = useManageQuestionStore((state) => state.questionPackages);
-  const removeQuestionPackage = useManageQuestionStore((state) => state.removeQuestionPackage); // Silme fonksiyonu
-  const navigate = useNavigate(); // navigate fonksiyonu ile yönlendirme yapacağız
+  const removeQuestionPackage = useManageQuestionStore((state) => state.removeQuestionPackage); 
+  const navigate = useNavigate();
 
   return (
-    <div className="flex w-full h-full bg-gray-50"> {/* Arka plan rengi ekledik */}
+    <div className="flex w-full h-full bg-gray-50">
       <Sidebar />
 
       <div className="flex-grow p-8">
         <Navbar />
 
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-semibold text-gray-700">Manage Question Package</h1> {/* Yazı tipi büyüklüğü ve rengi daha belirgin */}
-          {/* "+" Butonu ile Package Title sayfasına yönlendirme */}
+          <h1 className="text-3xl font-semibold text-gray-700">Manage Question Package</h1>
           <button
             className="bg-blue-500 text-white text-lg font-bold p-3 rounded-full shadow hover:bg-blue-600 transition-all duration-300"
             onClick={() => navigate('/package-title')}
@@ -42,11 +41,9 @@ const ManageQuestion = () => {
                 <div className="text-gray-700 font-medium">{pkg.title}</div>
                 <div className="text-center text-gray-500">{pkg.questions.length}</div>
                 <div className="flex justify-center space-x-4">
-                  {/* Kalem butonu ile edit-package sayfasına yönlendirme */}
                   <button className="text-blue-500 hover:text-blue-700 transition-colors duration-300" onClick={() => navigate(`/edit-package/${index}`)}>
                     ✏️
                   </button>
-                  {/* Çöp kutusu butonuna basıldığında soru paketini sil */}
                   <button className="text-red-500 hover:text-red-700 transition-colors duration-300" onClick={() => removeQuestionPackage(index)}>
                     🗑️
                   </button>
