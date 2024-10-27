@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
@@ -6,8 +6,13 @@ import useManageQuestionStore from '../store/Manage_Question_Store';
 
 const ManageQuestion = () => {
   const questionPackages = useManageQuestionStore((state) => state.questionPackages);
-  const removeQuestionPackage = useManageQuestionStore((state) => state.removeQuestionPackage); 
+  const fetchQuestionPackages = useManageQuestionStore((state) => state.fetchQuestionPackages);
+  const removeQuestionPackage = useManageQuestionStore((state) => state.removeQuestionPackage);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchQuestionPackages();
+  }, [fetchQuestionPackages]);
 
   return (
     <div className="flex w-full h-full bg-gray-50">
@@ -36,15 +41,18 @@ const ManageQuestion = () => {
 
           {questionPackages.length > 0 ? (
             questionPackages.map((pkg, index) => (
-              <div key={index} className="grid grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow mt-2 hover:shadow-lg transition-shadow duration-300">
+              <div key={pkg._id} className="grid grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow mt-2 hover:shadow-lg transition-shadow duration-300">
                 <div className="text-center text-gray-500 font-medium">{index + 1}</div>
                 <div className="text-gray-700 font-medium">{pkg.title}</div>
                 <div className="text-center text-gray-500">{pkg.questions.length}</div>
                 <div className="flex justify-center space-x-4">
-                  <button className="text-blue-500 hover:text-blue-700 transition-colors duration-300" onClick={() => navigate(`/edit-package/${index}`)}>
+                  <button className="text-blue-500 hover:text-blue-700 transition-colors duration-300" onClick={() => navigate(`/edit-package/${pkg._id}`)}>
                     ✏️
                   </button>
-                  <button className="text-red-500 hover:text-red-700 transition-colors duration-300" onClick={() => removeQuestionPackage(index)}>
+                  <button
+                    className="text-red-500 hover:text-red-700 transition-colors duration-300"
+                    onClick={() => removeQuestionPackage(pkg._id)} // package ID kullanarak silme işlemi başlatılıyor
+                  >
                     🗑️
                   </button>
                 </div>

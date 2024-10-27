@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
-import usePackageQuestionStore from '../store/Add_Question_Store'; // Store'u import ediyoruz
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-const AddQuestionPopup = ({ setIsPopupOpen }) => {
+const AddQuestionPopup = ({ setIsPopupOpen, onQuestionAdd }) => {
   const [question, setQuestion] = useState('');
-  const [minutes, setMinutes] = useState(2); // Varsayılan değer 2
-  const addQuestion = usePackageQuestionStore((state) => state.addQuestion); // Soru ekleme fonksiyonu
+  const [minutes, setMinutes] = useState(2);
+  const { packageIndex } = useParams();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (question.trim() && minutes) {
-      addQuestion(question.trim(), minutes); // Soru ve dakika bilgilerini store'a ekle
-      console.log("Soru eklendi:", question, minutes); // Kontrol amacıyla log
-      setIsPopupOpen(false); // Pop-up'ı kapat
+      try {
+        const response = await axios.post(`http://localhost:5000/api/question-package/${packageIndex}/question`, {
+          question: question.trim(),
+          minutes,
+        });
+
+        console.log("Soru başarıyla backend'e eklendi:", question, minutes);
+        
+        // Yeni eklenen soruyu ana bileşene ekle
+        onQuestionAdd(response.data.questions[response.data.questions.length - 1]);
+
+        setIsPopupOpen(false);
+      } catch (error) {
+        console.error("Soru eklenirken hata oluştu:", error);
+      }
     } else {
-      console.log("Soru veya dakika boş!"); // Eğer soru veya dakika boşsa uyarı
+      console.log("Soru veya dakika boş!");
     }
   };
 
@@ -34,7 +47,7 @@ const AddQuestionPopup = ({ setIsPopupOpen }) => {
           placeholder="Minutes"
           value={minutes}
           onChange={(e) => setMinutes(e.target.value)}
-          min="1" // Minimum 1 dakika olarak ayarlandı
+          min="1"
         />
         
         <div className="flex justify-between mt-6">

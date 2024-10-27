@@ -1,5 +1,5 @@
-
 import { create } from 'zustand';
+import axios from 'axios';
 
 const useManageQuestionStore = create((set) => ({
   questionPackages: [],
@@ -18,15 +18,33 @@ const useManageQuestionStore = create((set) => ({
         ...updatedPackages[index],
         questions: updatedQuestions,
       };
+      
       return { questionPackages: updatedPackages };
     }),
 
-  // Soru paketini silme fonksiyonu
-  removeQuestionPackage: (index) =>
-    set((state) => {
-      const updatedPackages = state.questionPackages.filter((_, i) => i !== index);
-      return { questionPackages: updatedPackages };
-    }),
+  // Soru paketini backend'den silme fonksiyonu
+  removeQuestionPackage: async (packageId) => {
+    try {
+      // Backend'den paketi silme isteği gönder
+      await axios.delete(`http://localhost:5000/api/question-package/${packageId}`);
+      // State'i güncelle
+      set((state) => ({
+        questionPackages: state.questionPackages.filter((pkg) => pkg._id !== packageId),
+      }));
+    } catch (error) {
+      console.error("Soru paketi silinirken hata oluştu:", error);
+    }
+  },
+
+  // Soru paketlerini backend'den çekme fonksiyonu
+  fetchQuestionPackages: async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/question-packages');
+      set({ questionPackages: response.data });
+    } catch (error) {
+      console.error("Soru paketleri alınırken hata oluştu:", error);
+    }
+  },
 }));
 
 export default useManageQuestionStore;

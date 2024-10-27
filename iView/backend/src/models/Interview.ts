@@ -5,7 +5,6 @@ interface Interview extends Document {
   selectedPackages: string[];
   expireDate: Date;
   canSkip: boolean;
-  showAtOnce: boolean;
 }
 
 const interviewSchema = new Schema({
@@ -13,7 +12,6 @@ const interviewSchema = new Schema({
   selectedPackages: [{ type: String, required: true }],
   expireDate: { type: Date, required: true },
   canSkip: { type: Boolean, default: false },
-  showAtOnce: { type: Boolean, default: false },
 });
 
 export default mongoose.model<Interview>("Interview", interviewSchema);

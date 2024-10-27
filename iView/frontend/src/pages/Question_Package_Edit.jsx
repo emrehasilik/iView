@@ -1,70 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // useNavigate'i import edin
+import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import AddQuestionPopup from '../popup/Add_Question';
-import useManageQuestionStore from '../store/Manage_Question_Store';
-import usePackageQuestionStore from '../store/Add_Question_Store'; // Yeni soruları eklemek için
+import axios from 'axios';
 
 const QuestionPackageEdit = () => {
-  const { packageIndex } = useParams(); // URL'den paket indeksini alıyoruz
-  const questionPackages = useManageQuestionStore((state) => state.questionPackages);
-  const updatePackageQuestions = useManageQuestionStore((state) => state.updatePackageQuestions);
-  
-  const addedQuestions = usePackageQuestionStore((state) => state.questions);
-  const clearQuestions = usePackageQuestionStore((state) => state.clearQuestions);
+  const { packageIndex } = useParams();
+  const [currentQuestions, setCurrentQuestions] = useState([]);
+  const [packageTitle, setPackageTitle] = useState('');
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // Pop-up aç/kapat durumu
-  const [currentQuestions, setCurrentQuestions] = useState([]); // Paket sorularını tutan local state
-
-  const packageToEdit = questionPackages[packageIndex]; // Düzenlemek istediğimiz paket
-  const navigate = useNavigate(); // Yönlendirme için useNavigate hook'u
-
-  // İlk render'da packageToEdit içindeki soruları local state'e alıyoruz
-  useEffect(() => {
-    if (packageToEdit) {
-      setCurrentQuestions(packageToEdit.questions);
+  // Paket sorularını backend'den çekme fonksiyonu
+  const fetchSelectedQuestionPackage = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/question-package/${packageIndex}`);
+      setCurrentQuestions(response.data.questions);
+      setPackageTitle(response.data.title);
+    } catch (error) {
+      console.error("Soru paketi alınırken hata oluştu:", error);
     }
-  }, [packageToEdit]);
+  };
 
-  // usePackageQuestionStore'dan eklenen soruları dinlemek ve mevcut sorulara yeni soruları eklemek için
   useEffect(() => {
-    if (addedQuestions.length > 0) {
-      const filteredQuestions = addedQuestions.filter(
-        (newQuestion) => !currentQuestions.some(
-          (existingQuestion) => existingQuestion.question === newQuestion.question
-        )
-      );
-      setCurrentQuestions((prevQuestions) => [...prevQuestions, ...filteredQuestions]);
-    }
-  }, [addedQuestions]);
+    fetchSelectedQuestionPackage();
+  }, []);
+
+  // Yeni soru eklendiğinde çağrılan fonksiyon
+  const handleQuestionAdd = (newQuestion) => {
+    setCurrentQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+  };
 
   // Soru silme fonksiyonu
-  const handleDeleteQuestion = (index) => {
-    setCurrentQuestions((prevQuestions) =>
-      prevQuestions.filter((_, i) => i !== index)
-    );
+  const handleDeleteQuestion = async (questionId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/question-package/${packageIndex}/question/${questionId}`);
+      setCurrentQuestions((prevQuestions) =>
+        prevQuestions.filter((question) => question._id !== questionId)
+      );
+    } catch (error) {
+      console.error("Soru silinirken hata oluştu:", error);
+    }
   };
-
-  // Yeni soru eklediğimizde paketi güncelleme fonksiyonu
-  const handleSaveQuestion = () => {
-    if (!packageToEdit) return;
-
-    // Paket içindeki sorulara geçici soruları ekleyin
-    const updatedPackageQuestions = [...currentQuestions];
-    updatePackageQuestions(packageIndex, updatedPackageQuestions); // Paket içeriğini güncelle
-
-    clearQuestions(); // Popup'a eklenen geçici soruları sıfırla
-
-    // Yönlendirme: Soru kaydedildikten sonra manage-question sayfasına yönlendir
-    navigate('/manage-question');
-
-    setIsPopupOpen(false); // Popup'u kapat
-  };
-
-  if (!packageToEdit) {
-    return <div className="text-center text-red-500 font-bold mt-6">Bu paket mevcut değil.</div>;
-  }
 
   return (
     <div className="flex w-full h-full">
@@ -73,8 +51,7 @@ const QuestionPackageEdit = () => {
         <Navbar />
 
         <div className="flex justify-between items-center mb-6 mt-4">
-          <h1 className="text-xl font-bold">Edit Question Package: {packageToEdit.title}</h1>
-          {/* "+" Butonu ile AddQuestionPopup açma */}
+          <h1 className="text-xl font-bold">Edit Question Package: {packageTitle}</h1>
           <button
             className="bg-blue-500 text-white text-lg font-bold p-3 rounded-full shadow hover:bg-blue-600 transition-all duration-300"
             onClick={() => setIsPopupOpen(true)}
@@ -83,7 +60,6 @@ const QuestionPackageEdit = () => {
           </button>
         </div>
 
-        {/* Paket İçeriği (Sorular) */}
         <div className="w-full bg-gray-100 rounded-xl shadow p-6">
           <div className="grid grid-cols-4 gap-4 bg-gray-200 p-3 rounded-md font-bold">
             <div className="text-center">#</div>
@@ -94,15 +70,14 @@ const QuestionPackageEdit = () => {
 
           {currentQuestions.length > 0 ? (
             currentQuestions.map((q, index) => (
-              <div key={index} className="grid grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow mt-2">
+              <div key={q._id} className="grid grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow mt-2">
                 <div className="text-center">{index + 1}</div>
                 <div>{q.question}</div>
                 <div className="text-center">{q.minutes} min</div>
                 <div className="flex justify-center">
-                  {/* Silme butonu */}
                   <button
                     className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition"
-                    onClick={() => handleDeleteQuestion(index)}
+                    onClick={() => handleDeleteQuestion(q._id)}
                   >
                     Sil
                   </button>
@@ -114,19 +89,12 @@ const QuestionPackageEdit = () => {
           )}
         </div>
 
-        {/* Alt Butonlar */}
-        <div className="flex justify-between mt-6">
-          <button
-            className="bg-gray-500 text-white py-2 px-6 rounded-lg hover:bg-gray-600 transition"
-            onClick={handleSaveQuestion} // Bu kısmı kaldırmamamız gerekiyordu
-          >
-            Save Changes
-          </button>
-        </div>
+        {/* Popup ile yeni soru ekleme */}
+        {isPopupOpen && (
+          <AddQuestionPopup setIsPopupOpen={setIsPopupOpen} onQuestionAdd={handleQuestionAdd} />
+        )}
       </div>
-
-      {/* Add Question Popup */}
-      {isPopupOpen && <AddQuestionPopup setIsPopupOpen={setIsPopupOpen} />}
+      
     </div>
   );
 };
