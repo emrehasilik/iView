@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import useManageQuestionStore from '../store/Manage_Question_Store';
+import { EditOutlined, DeleteOutlined, CloseCircleOutlined } from '@ant-design/icons';
 
 const ManageQuestion = () => {
   const questionPackages = useManageQuestionStore((state) => state.questionPackages);
@@ -23,12 +24,14 @@ const ManageQuestion = () => {
 
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-700">Manage Question Package</h1>
-          <button
-            className="bg-blue-500 text-white text-lg font-bold p-3 rounded-full shadow hover:bg-blue-600 transition-all duration-300"
-            onClick={() => navigate('/package-title')}
-          >
-            +
-          </button>
+          <div className="flex items-end"> {/* Add a wrapper to control vertical alignment */}
+            <button
+              className="bg-blue-500 text-white text-lg font-bold p-3 rounded-full shadow hover:bg-blue-600 transition-all duration-300 mt-4"
+              onClick={() => navigate('/package-title')}
+            >
+              +
+            </button>
+          </div>
         </div>
 
         <div className="w-full bg-white rounded-xl shadow p-6">
@@ -47,13 +50,13 @@ const ManageQuestion = () => {
                 <div className="text-center text-gray-500">{pkg.questions.length}</div>
                 <div className="flex justify-center space-x-4">
                   <button className="text-blue-500 hover:text-blue-700 transition-colors duration-300" onClick={() => navigate(`/edit-package/${pkg._id}`)}>
-                    ✏️
+                    <EditOutlined style={{ fontSize: '25px', marginRight: '6px' }} />
                   </button>
                   <button
                     className="text-red-500 hover:text-red-700 transition-colors duration-300"
-                    onClick={() => removeQuestionPackage(pkg._id)} // package ID kullanarak silme işlemi başlatılıyor
+                    onClick={() => removeQuestionPackage(pkg._id)}
                   >
-                    🗑️
+                    <DeleteOutlined style={{ fontSize: '22px', marginRight: '1px' }} />
                   </button>
                 </div>
               </div>

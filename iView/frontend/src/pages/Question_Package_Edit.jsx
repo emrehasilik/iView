@@ -4,6 +4,8 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import AddQuestionPopup from '../popup/Add_Question';
 import axios from 'axios';
+import { DeleteOutlined } from '@ant-design/icons';
+
 
 const QuestionPackageEdit = () => {
   const { packageIndex } = useParams();
@@ -75,12 +77,12 @@ const QuestionPackageEdit = () => {
                 <div>{q.question}</div>
                 <div className="text-center">{q.minutes} min</div>
                 <div className="flex justify-center">
-                  <button
-                    className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition"
-                    onClick={() => handleDeleteQuestion(q._id)}
-                  >
-                    Sil
-                  </button>
+                <button
+  className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition flex items-center justify-center"
+  onClick={() => handleDeleteQuestion(q._id)}
+>
+  <DeleteOutlined />
+</button>
                 </div>
               </div>
             ))

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import useManageQuestionStore from '../store/Manage_Question_Store';
 import useInterviewStore from '../store/Interview_Store'; // Zustand'dan mülakatları çekeceğiz
 import AddQuestionPopup from './Add_Question'; // Mevcut soru ekleme popup'ını kullanacağız
+import { CloseCircleOutlined, SaveOutlined } from '@ant-design/icons'; // İkonları içe aktarma
 
 const AddInterviewPopup = ({ setIsPopupOpen }) => {
   const questionPackages = useManageQuestionStore((state) => state.questionPackages); // Paketleri Zustand'dan al
@@ -72,14 +73,6 @@ const AddInterviewPopup = ({ setIsPopupOpen }) => {
                 </option>
               ))}
             </select>
-            <button
-  className="ml-3 px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300 ease-in-out flex items-center"
-  onClick={() => setIsAddQuestionPopupOpen(true)} // Soru ekleme popup'ı aç
->
-  <span className="mr-2">+</span>
-  Add a question
-</button>
-
           </div>
           
           {/* Seçili paketler */}
@@ -110,39 +103,33 @@ const AddInterviewPopup = ({ setIsPopupOpen }) => {
         </div>
 
         {/* Toggle Buttons */}
+       
+
+        {/* Show At Once Toggle */}
         <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center">
-            <label className="mr-2 text-gray-700">Can Skip</label>
-            <input
-              type="checkbox"
-              className="toggle"
-              checked={canSkip}
-              onChange={() => setCanSkip(!canSkip)}
-            />
-          </div>
-          <div className="flex items-center">
-            <label className="mr-2 text-gray-700">Show At Once</label>
-            <input
-              type="checkbox"
-              className="toggle"
-              checked={showAtOnce}
-              onChange={() => setShowAtOnce(!showAtOnce)}
-            />
-          </div>
+          <label className="text-gray-700">Show At Once</label>
+          <input
+            type="checkbox"
+            className="toggle"
+            checked={showAtOnce}
+            onChange={() => setShowAtOnce(!showAtOnce)}
+          />
         </div>
 
         {/* Buttons */}
         <div className="flex justify-between mt-6">
           <button
-            className="bg-gray-300 text-black py-2 px-6 rounded-lg hover:bg-gray-400 transition"
+            className="bg-red-500 text-black py-2 px-6 rounded-lg hover:bg-red-600 transition flex items-center"
             onClick={() => setIsPopupOpen(false)}
           >
+            <CloseCircleOutlined className="mr-2"  /> {/* Rengi kırmızı yapıldı */}
             Cancel
           </button>
           <button
-            className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition"
+            className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition flex items-center"
             onClick={handleSave}
           >
+            <SaveOutlined className="mr-2" /> {/* SaveOutlined ikonu eklendi */}
             Add
           </button>
         </div>

@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Electrolize&display=swap');
+
+body {
+  @apply font-electrolize; /* Tailwind ile Electrolize fontunu kullan */
+}

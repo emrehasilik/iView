@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { CloseCircleOutlined,SaveOutlined } from '@ant-design/icons'; // Ant Design CloseCircleOutlined ikonunu içe aktarma
 
 const AddQuestionPopup = ({ setIsPopupOpen, onQuestionAdd }) => {
   const [question, setQuestion] = useState('');
@@ -41,26 +42,31 @@ const AddQuestionPopup = ({ setIsPopupOpen, onQuestionAdd }) => {
           onChange={(e) => setQuestion(e.target.value)}
         />
         
-        <input
-          type="number"
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Minutes"
-          value={minutes}
-          onChange={(e) => setMinutes(e.target.value)}
-          min="1"
-        />
+        <div className="flex items-center mb-4">
+          <input
+            type="number"
+            className="w-20 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Minutes"
+            value={minutes}
+            onChange={(e) => setMinutes(e.target.value)}
+            min="1"
+          />
+          <span className="text-gray-500 ml-2 text-sm">min</span> {/* "min" etiketi küçültüldü */}
+        </div>
         
         <div className="flex justify-between mt-6">
           <button
-            className="bg-gray-300 text-black py-2 px-6 rounded-lg hover:bg-gray-400 transition"
+            className="bg-red-500 text-black py-2 px-6 rounded-lg hover:bg-red-700 transition flex items-center"
             onClick={() => setIsPopupOpen(false)}
           >
+            <CloseCircleOutlined className="mr-2" /> {/* CloseCircleOutlined ikonu eklendi */}
             Cancel
           </button>
           <button
-            className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition"
+            className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition flex items-center"
             onClick={handleSave}
           >
+            <SaveOutlined className="mr-2" /> {/* SaveOutlined ikonu eklendi */}
             Save
           </button>
         </div>
