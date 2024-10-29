@@ -1,30 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar'; 
 import Navbar from '../components/Navbar'; 
-import AddQuestionPopup from '../popup/Add_Question'; 
-import usePackageQuestionStore from '../store/Add_Question_Store'; 
+import Add_Question_Package from '../popup/Add_Question_Package';
+import axios from 'axios';
+import { DeleteOutlined } from '@ant-design/icons';
+
+import usePackageQuestionStore from '../store/Package_Title_Store'; 
 import useManageQuestionStore from '../store/Manage_Question_Store'; 
 
 const PackageTitle = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false); 
-  const [packageTitle, setPackageTitle] = useState(''); 
-  const questions = usePackageQuestionStore((state) => state.questions); 
-  const addQuestionPackage = useManageQuestionStore((state) => state.addQuestionPackage); 
-  const clearQuestions = usePackageQuestionStore((state) => state.clearQuestions); 
+  const packageTitle = usePackageQuestionStore((state) => state.packageTitle);
+  const setPackageTitle = usePackageQuestionStore((state) => state.setPackageTitle);
+  const questions = usePackageQuestionStore((state) => state.questions);
+  const addQuestion = usePackageQuestionStore((state) => state.addQuestion);
+  const clearQuestions = usePackageQuestionStore((state) => state.clearAll); // Verileri temizleme işlevi
   const removeQuestion = usePackageQuestionStore((state) => state.removeQuestion); 
+  const addQuestionPackage = useManageQuestionStore((state) => state.addQuestionPackage); 
   const navigate = useNavigate();
 
+  // Sayfa kapatıldığında veya bileşen yüklendiğinde verileri temizle
+  useEffect(() => {
+    return () => {
+      clearQuestions(); // Sayfadan çıkarken verileri temizle
+    };
+  }, []);
+
   // Soru paketini kaydetme fonksiyonu
-  const handleSave = () => {
+  const handleSave = async () => {
+    console.log("Save button clicked");
+  
     if (questions.length > 0 && packageTitle) {
-      addQuestionPackage({ title: packageTitle, questions });
-      clearQuestions();
-      setPackageTitle('');
-      navigate('/manage-question'); // ManageQuestion sayfasına yönlendirme
+      try {
+        const response = await axios.post('http://localhost:5000/api/question-package', {
+          title: packageTitle,
+          questions
+        });
+        console.log('Paket başarıyla kaydedildi:', response.data);
+  
+        // Store'u temizle
+        clearQuestions();
+        navigate('/manage-question'); // ManageQuestion sayfasına yönlendirme
+      } catch (error) {
+        console.error('Paket kaydedilirken hata oluştu:', error);
+      }
     } else {
       console.log('Lütfen paket başlığı ve soru ekleyin!');
     }
+  };
+
+  // Cancel butonuna tıklanıldığında bilgileri temizleme ve yönlendirme
+  const handleCancel = () => {
+    clearQuestions();
+    navigate('/manage-question');
   };
 
   return (
@@ -75,7 +104,12 @@ const PackageTitle = () => {
                   <div>{q.question}</div>
                   <div>{q.minutes} min</div>
                   <div className="flex space-x-2">
-                    <button className="text-red-500" onClick={() => removeQuestion(index)}>🗑️</button>
+                    <button
+                      className="text-red-500 hover:text-red-600 transition"
+                      onClick={() => removeQuestion(index)} // Soru silme işlevi
+                    >
+                      <DeleteOutlined style={{ fontSize: '18px' }} />
+                    </button>
                   </div>
                 </div>
               ))
@@ -88,7 +122,7 @@ const PackageTitle = () => {
           <div className="flex justify-between mt-6">
             <button
               className="bg-gray-400 text-white py-2 px-6 rounded-lg hover:bg-gray-500 transition"
-              onClick={() => navigate('/manage-question')}
+              onClick={handleCancel} // Cancel butonunda handleCancel fonksiyonunu çağırıyoruz
             >
               Cancel
             </button>
@@ -103,7 +137,12 @@ const PackageTitle = () => {
       </div>
 
       {/* Add Question Popup */}
-      {isPopupOpen && <AddQuestionPopup setIsPopupOpen={setIsPopupOpen} />}
+      {isPopupOpen && (
+        <Add_Question_Package 
+          setIsPopupOpen={setIsPopupOpen} 
+          onQuestionAdd={(newQuestion) => addQuestion(newQuestion.question, newQuestion.minutes)} 
+        />
+      )}
     </div>
   );
 };

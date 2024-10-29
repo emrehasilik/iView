@@ -1,45 +1,51 @@
-import React, { useState } from 'react';
-import useManageQuestionStore from '../store/Manage_Question_Store';
-import useInterviewStore from '../store/Interview_Store'; // Zustand'dan mülakatları çekeceğiz
-import AddQuestionPopup from './Add_Question'; // Mevcut soru ekleme popup'ını kullanacağız
-import { CloseCircleOutlined, SaveOutlined } from '@ant-design/icons'; // İkonları içe aktarma
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import useInterviewStore from '../store/Interview_Store'; 
+import AddQuestionPopup from './Add_Question';
+import { CloseCircleOutlined, SaveOutlined } from '@ant-design/icons';
 
 const AddInterviewPopup = ({ setIsPopupOpen }) => {
-  const questionPackages = useManageQuestionStore((state) => state.questionPackages); // Paketleri Zustand'dan al
-  const addInterview = useInterviewStore((state) => state.addInterview); // Yeni mülakat ekleme fonksiyonu
+  const addInterview = useInterviewStore((state) => state.addInterview);
   const [title, setTitle] = useState('');
-  const [selectedPackages, setSelectedPackages] = useState([]); // Birden fazla paket seçilecek
-  const [expireDate, setExpireDate] = useState(''); // Tarih
-  const [canSkip, setCanSkip] = useState(false); // Toggle için
-  const [showAtOnce, setShowAtOnce] = useState(false); // Toggle için
-  const [isAddQuestionPopupOpen, setIsAddQuestionPopupOpen] = useState(false); // Soru ekleme popup'ı durumu
+  const [questionPackages, setQuestionPackages] = useState([]); // Soru paketleri için state
+  const [selectedPackages, setSelectedPackages] = useState([]);
+  const [expireDate, setExpireDate] = useState('');
+  const [showAtOnce, setShowAtOnce] = useState(false);
+  const [isAddQuestionPopupOpen, setIsAddQuestionPopupOpen] = useState(false);
 
-  const handlePackageSelection = (pkg) => {
-    if (!selectedPackages.includes(pkg)) {
-      setSelectedPackages([...selectedPackages, pkg]); // Seçilen paketi ekle
+  // Backend'den soru paketlerini çek
+  useEffect(() => {
+    const fetchQuestionPackages = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/question-packages');
+        setQuestionPackages(response.data);
+      } catch (error) {
+        console.error('Soru paketleri alınırken hata oluştu:', error);
+      }
+    };
+    fetchQuestionPackages();
+  }, []);
+
+  const handlePackageSelection = (pkgId) => {
+    const selectedPackage = questionPackages.find((pkg) => pkg._id === pkgId);
+    if (selectedPackage && !selectedPackages.includes(selectedPackage)) {
+      setSelectedPackages([...selectedPackages, selectedPackage]);
     }
-  };
-
-  // Eklenen soruları yönetme
-  const handleAddQuestion = (newQuestion) => {
-    // Seçilen paketlere yeni soruyu ekleyeceğiz
-    setSelectedPackages([...selectedPackages, newQuestion]);
   };
 
   const handleSave = () => {
     if (title && selectedPackages.length > 0 && expireDate) {
       const newInterview = {
         title,
-        selectedPackages, // Çoklu seçilen paketler ve sorular
+        selectedPackages: selectedPackages.map((pkg) => pkg._id), // ID'leri gönderiyoruz
         expireDate,
-        canSkip,
         showAtOnce,
       };
       
-      addInterview(newInterview); // Mülakatı Zustand'a ekle
-      setIsPopupOpen(false); // Pop-up'ı kapat
+      addInterview(newInterview);
+      setIsPopupOpen(false);
     } else {
-      console.log("Lütfen tüm alanları doldurunuz!"); // Eğer alanlar boşsa uyarı
+      console.log("Lütfen tüm alanları doldurunuz!");
     }
   };
 
@@ -67,8 +73,8 @@ const AddInterviewPopup = ({ setIsPopupOpen }) => {
               value=""
             >
               <option value="">Select Package</option>
-              {questionPackages.map((pkg, index) => (
-                <option key={index} value={pkg.title}>
+              {questionPackages.map((pkg) => (
+                <option key={pkg._id} value={pkg._id}>
                   {pkg.title}
                 </option>
               ))}
@@ -77,12 +83,12 @@ const AddInterviewPopup = ({ setIsPopupOpen }) => {
           
           {/* Seçili paketler */}
           <div className="flex flex-wrap mt-4">
-            {selectedPackages.map((pkg, index) => (
-              <div key={index} className="flex items-center bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
-                <span className="text-gray-700">{pkg}</span>
+            {selectedPackages.map((pkg) => (
+              <div key={pkg._id} className="flex items-center bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
+                <span className="text-gray-700">{pkg.title}</span>
                 <button
                   className="ml-2 text-gray-500 hover:text-red-500"
-                  onClick={() => setSelectedPackages(selectedPackages.filter((p) => p !== pkg))}
+                  onClick={() => setSelectedPackages(selectedPackages.filter((p) => p._id !== pkg._id))}
                 >
                   ✕
                 </button>
@@ -102,9 +108,6 @@ const AddInterviewPopup = ({ setIsPopupOpen }) => {
           />
         </div>
 
-        {/* Toggle Buttons */}
-       
-
         {/* Show At Once Toggle */}
         <div className="flex justify-between items-center mb-4">
           <label className="text-gray-700">Show At Once</label>
@@ -122,15 +125,13 @@ const AddInterviewPopup = ({ setIsPopupOpen }) => {
             className="bg-red-500 text-black py-2 px-6 rounded-lg hover:bg-red-600 transition flex items-center"
             onClick={() => setIsPopupOpen(false)}
           >
-            <CloseCircleOutlined className="mr-2"  /> {/* Rengi kırmızı yapıldı */}
-            Cancel
+            <CloseCircleOutlined className="mr-2" /> Cancel
           </button>
           <button
             className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition flex items-center"
             onClick={handleSave}
           >
-            <SaveOutlined className="mr-2" /> {/* SaveOutlined ikonu eklendi */}
-            Add
+            <SaveOutlined className="mr-2" /> Add
           </button>
         </div>
       </div>
@@ -138,7 +139,7 @@ const AddInterviewPopup = ({ setIsPopupOpen }) => {
       {/* Add Question Popup */}
       {isAddQuestionPopupOpen && (
         <AddQuestionPopup
-          setIsPopupOpen={setIsAddQuestionPopupOpen} // Popup'u kapatmak için
+          setIsPopupOpen={setIsAddQuestionPopupOpen}
         />
       )}
     </div>

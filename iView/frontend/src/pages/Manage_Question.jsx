@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import useManageQuestionStore from '../store/Manage_Question_Store';
-import { EditOutlined, DeleteOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const ManageQuestion = () => {
   const questionPackages = useManageQuestionStore((state) => state.questionPackages);
@@ -24,7 +24,7 @@ const ManageQuestion = () => {
 
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-700">Manage Question Package</h1>
-          <div className="flex items-end"> {/* Add a wrapper to control vertical alignment */}
+          <div className="flex items-end">
             <button
               className="bg-blue-500 text-white text-lg font-bold p-3 rounded-full shadow hover:bg-blue-600 transition-all duration-300 mt-4"
               onClick={() => navigate('/package-title')}
@@ -44,7 +44,7 @@ const ManageQuestion = () => {
 
           {questionPackages.length > 0 ? (
             questionPackages.map((pkg, index) => (
-              <div key={pkg._id} className="grid grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow mt-2 hover:shadow-lg transition-shadow duration-300">
+              <div key={pkg._id || index} className="grid grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow mt-2 hover:shadow-lg transition-shadow duration-300">
                 <div className="text-center text-gray-500 font-medium">{index + 1}</div>
                 <div className="text-gray-700 font-medium">{pkg.title}</div>
                 <div className="text-center text-gray-500">{pkg.questions.length}</div>

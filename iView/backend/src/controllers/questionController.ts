@@ -13,7 +13,6 @@ export const getQuestionPackages = asyncHandler(async (req: Request, res: Respon
 export const getQuestionPackageById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { packageId } = req.params;
 
-  // ObjectId doğrulaması
   if (!mongoose.Types.ObjectId.isValid(packageId)) {
     res.status(400).json({ message: "Geçersiz paket ID" });
     return;
@@ -32,6 +31,13 @@ export const getQuestionPackageById = asyncHandler(async (req: Request, res: Res
 // Create a new question package
 export const createQuestionPackage = asyncHandler(async (req: Request, res: Response) => {
   const { title, questions } = req.body;
+
+  // Başlık ve soru listesi doğrulama
+  if (!title || !questions || questions.length === 0) {
+    res.status(400).json({ message: "Paket başlığı ve en az bir soru gerekli." });
+    return;
+  }
+
   const newQuestionPackage = new QuestionPackage({ title, questions });
   await newQuestionPackage.save();
   res.status(201).json(newQuestionPackage);
@@ -47,6 +53,12 @@ export const updateQuestionPackage = asyncHandler(async (req: Request, res: Resp
   }
 
   const { title, questions } = req.body;
+
+  if (!title || !questions || questions.length === 0) {
+    res.status(400).json({ message: "Paket başlığı ve en az bir soru gerekli." });
+    return;
+  }
+
   const updatedPackage = await QuestionPackage.findByIdAndUpdate(id, { title, questions }, { new: true });
 
   if (!updatedPackage) {
@@ -84,6 +96,12 @@ export const addQuestionToPackage = asyncHandler(async (req: Request, res: Respo
   }
 
   const { question, minutes } = req.body;
+
+  if (!question || !minutes) {
+    res.status(400).json({ message: "Soru ve süre bilgileri gereklidir." });
+    return;
+  }
+
   const updatedPackage = await QuestionPackage.findByIdAndUpdate(
     packageId,
     { $push: { questions: { question, minutes } } },

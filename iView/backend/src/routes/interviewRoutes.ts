@@ -1,11 +1,23 @@
 import { Router } from "express";
-import { getAllInterviews, addInterview, updateInterview, deleteInterview } from "../controllers/interviewController";
+import {
+  getAllInterviews,
+  addInterview,
+  updateInterview,
+  deleteInterview
+} from "../controllers/interviewController";
 
 const router = Router();
 
-router.get('/interviews', getAllInterviews);           // Get all interviews
-router.post('/interviews', addInterview);              // Create a new interview
-router.put('/interviews/:id', updateInterview);        // Update an interview by ID
-router.delete('/interviews/:id', deleteInterview);     // Delete an interview by ID
+// Get all interviews
+router.get('/interviews', getAllInterviews);
+
+// Create a new interview
+router.post('/interviews', addInterview);
+
+// Update an interview by ID
+router.put('/interviews/:id', updateInterview);
+
+// Delete an interview by ID
+router.delete('/interviews/:id', deleteInterview);
 
 export default router;
