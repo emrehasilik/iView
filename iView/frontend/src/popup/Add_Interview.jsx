@@ -33,17 +33,23 @@ const AddInterviewPopup = ({ setIsPopupOpen }) => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (title && selectedPackages.length > 0 && expireDate) {
       const newInterview = {
         title,
         selectedPackages: selectedPackages.map((pkg) => pkg._id), // ID'leri gönderiyoruz
         expireDate,
-        showAtOnce,
       };
       
-      addInterview(newInterview);
-      setIsPopupOpen(false);
+      try {
+        // Axios ile backend'e POST isteği yap
+        const response = await axios.post('http://localhost:5000/api/interviews', newInterview);
+        // Backend'den dönen veriyi store'a ekle
+        addInterview(response.data);
+        setIsPopupOpen(false); // Popup'u kapat
+      } catch (error) {
+        console.error("Interview ekleme hatası:", error);
+      }
     } else {
       console.log("Lütfen tüm alanları doldurunuz!");
     }
