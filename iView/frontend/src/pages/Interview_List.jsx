@@ -36,7 +36,7 @@ const InterviewList = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center text-gray-500 mt-4">Henüz mülakat oluşturulmadı.</div>
+          <div className="text-center text-gray-500 mt-4">No interviews have been created yet.</div>
         )}
 
         {/* Add Interview Popup */}

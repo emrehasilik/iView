@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar'; 
 import Add_Question_Package from '../popup/Add_Question_Package';
 import axios from 'axios';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined , CloseCircleOutlined , SaveOutlined} from '@ant-design/icons';
 
 import usePackageQuestionStore from '../store/Package_Title_Store'; 
 import useManageQuestionStore from '../store/Manage_Question_Store'; 
@@ -114,22 +114,24 @@ const PackageTitle = () => {
                 </div>
               ))
             ) : (
-              <p className="text-center text-gray-500">Henüz soru eklenmedi.</p>
+              <p className="text-center text-gray-500">No questions have been added yet.</p>
             )}
           </div>
 
           {/* Alt Butonlar */}
           <div className="flex justify-between mt-6">
             <button
-              className="bg-gray-400 text-white py-2 px-6 rounded-lg hover:bg-gray-500 transition"
+             className="bg-red-500 text-black py-2 px-6 rounded-lg hover:bg-red-700 transition flex items-center"
               onClick={handleCancel} // Cancel butonunda handleCancel fonksiyonunu çağırıyoruz
             >
-              Cancel
+                <CloseCircleOutlined className="mr-2" /> {/* CloseCircleOutlined ikonu eklendi */}
+                Cancel
             </button>
             <button
-              className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition"
+              className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition flex items-center"
               onClick={handleSave}
             >
+              <SaveOutlined className="mr-2" /> {/* SaveOutlined ikonu eklendi */}
               Save
             </button>
           </div>
