@@ -37,15 +37,17 @@ const AddInterviewPopup = ({ setIsPopupOpen }) => {
     if (title && selectedPackages.length > 0 && expireDate) {
       const newInterview = {
         title,
-        selectedPackages: selectedPackages.map((pkg) => pkg._id), // ID'leri gönderiyoruz
+        selectedPackages: selectedPackages.map((pkg) => pkg._id), // Sadece ID'ler gönderiliyor
         expireDate,
       };
       
       try {
-        // Axios ile backend'e POST isteği yap
+        // Backend'e POST isteği gönder
         const response = await axios.post('http://localhost:5000/api/interviews', newInterview);
-        // Backend'den dönen veriyi store'a ekle
-        addInterview(response.data);
+        // Yanıtta gelen selectedPackages ID'lerini tam paket verileriyle değiştir
+        const newInterviewData = response.data;
+        newInterviewData.selectedPackages = selectedPackages; // ID'leri tam verilerle değiştir
+        addInterview(newInterviewData);
         setIsPopupOpen(false); // Popup'u kapat
       } catch (error) {
         console.error("Interview ekleme hatası:", error);
