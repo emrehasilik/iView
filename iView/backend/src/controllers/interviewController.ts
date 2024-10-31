@@ -5,7 +5,14 @@ import QuestionPackage from "../models/QuestionPackage";
 
 // Get all interviews (Read)
 export const getAllInterviews = asyncHandler(async (req: Request, res: Response) => {
-  const interviews = await Interview.find().populate('selectedPackages'); // Soru paketleriyle birlikte getirme
+  const interviews = await Interview.find()
+    .populate({
+      path: 'selectedPackages',
+      populate: {
+        path: 'questions' // Soru paketlerindeki soruları da getir
+      }
+    });
+
   res.json(interviews);
 });
 
