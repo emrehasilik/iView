@@ -5,13 +5,23 @@ import Interview from "../models/Interview";
 
 // Aday Bilgilerini Kaydetme
 export const savePersonelInformation = asyncHandler(async (req: Request, res: Response) => {
+  const { interviewId } = req.params; // URL'den interviewId'yi alıyoruz
   const { name, surname, email, phone, isApproved } = req.body;
 
+  // Yeni aday kaydı oluşturma
   const newPersonel = new PersonelInformation({ name, surname, email, phone, isApproved });
   await newPersonel.save();
-  
-  res.status(201).json(newPersonel);
+
+  // Interview dokümanına yeni adayın ID'sini ekle
+  await Interview.findByIdAndUpdate(
+    interviewId,
+    { $push: { userId: newPersonel._id } }, // userId alanına yeni adayın ObjectId'sini ekliyoruz
+    { new: true }
+  );
+
+  res.status(201).json(newPersonel); // Yeni adayın verisini döndürüyoruz
 });
+
 
 // Interview Soru Paketini Getirme
 export const getInterviewQuestions = asyncHandler(async (req: Request, res: Response) => {

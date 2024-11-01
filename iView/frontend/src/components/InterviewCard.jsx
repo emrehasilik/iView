@@ -1,4 +1,3 @@
-// src/components/InterviewCard.jsx
 import React, { useState } from 'react';
 import { DeleteOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import useInterviewStore from '../store/Interview_Store';
@@ -13,25 +12,21 @@ const InterviewCard = ({ interview }) => {
 
   const handleCopyLink = () => {
     const interviewLink = `${import.meta.env.VITE_FRONTEND_PERSONEL_URL}/interview/${interview._id}`;
-    navigator.clipboard.writeText(interviewLink);
-    setCopySuccess(true);
+    navigator.clipboard.writeText(interviewLink)
+      .then(() => setCopySuccess(true))
+      .catch(() => alert("Kopyalama işlemi başarısız!"));
 
-    // 3 saniye sonra mesajı gizle
-    setTimeout(() => {
-      setCopySuccess(false);
-    }, 3000);
+    setTimeout(() => setCopySuccess(false), 3000);
   };
 
   return (
     <div className="relative bg-white p-6 rounded-lg shadow-md w-[300px] h-[280px]">
-      {/* Bağlantı kopyalandı bildirimi */}
       {copySuccess && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white py-3 px-6 rounded-lg shadow-lg animate-fade-in-out">
           <span className="font-semibold">✔ Bağlantı başarıyla kopyalandı!</span>
         </div>
       )}
 
-      {/* Çöp Kutusu ve Copy Link Butonları */}
       <div className="absolute top-2 left-2 flex items-center space-x-4">
         <button
           onClick={() => removeInterview(interview._id)}
@@ -44,7 +39,6 @@ const InterviewCard = ({ interview }) => {
         </button>
       </div>
 
-      {/* Soru İşareti Butonu (Sağ Üstte) */}
       <button
         onClick={() => setShowQuestions(true)}
         className="absolute top-2 right-2 bg-blue-900 text-white p-1 rounded-xl hover:bg-blue-800 transition"
@@ -75,7 +69,6 @@ const InterviewCard = ({ interview }) => {
         </button>
       </div>
 
-      {/* QuestionInterview Popup */}
       <QuestionInterview
         isVisible={showQuestions}
         onClose={() => setShowQuestions(false)}

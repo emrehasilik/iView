@@ -3,10 +3,7 @@ import { savePersonelInformation, getInterviewQuestions } from "../controllers/p
 
 const router = Router();
 
-// Aday Bilgilerini Kaydetme Rotası
-router.post("/personel-information", savePersonelInformation);
-
-// Interview Soru Paketini Getirme Rotası
+router.post("/interview/:interviewId/personel-information", savePersonelInformation);
 router.get("/interview/:interviewId/questions", getInterviewQuestions);
 
 export default router;
