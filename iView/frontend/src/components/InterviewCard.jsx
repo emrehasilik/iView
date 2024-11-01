@@ -9,20 +9,44 @@ const InterviewCard = ({ interview }) => {
   const navigate = useNavigate();
   const removeInterview = useInterviewStore((state) => state.removeInterview);
   const [showQuestions, setShowQuestions] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const handleCopyLink = () => {
+    const interviewLink = `${import.meta.env.VITE_FRONTEND_PERSONEL_URL}/interview/${interview._id}`;
+    navigator.clipboard.writeText(interviewLink);
+    setCopySuccess(true);
+
+    // 3 saniye sonra mesajı gizle
+    setTimeout(() => {
+      setCopySuccess(false);
+    }, 3000);
+  };
 
   return (
     <div className="relative bg-white p-6 rounded-lg shadow-md w-[300px] h-[280px]">
-      {/* Silme ve Copy Link Butonları */}
+      {/* Bağlantı kopyalandı bildirimi */}
+      {copySuccess && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white py-3 px-6 rounded-lg shadow-lg animate-fade-in-out">
+          <span className="font-semibold">✔ Bağlantı başarıyla kopyalandı!</span>
+        </div>
+      )}
+
+      {/* Çöp Kutusu ve Copy Link Butonları */}
       <div className="absolute top-2 left-2 flex items-center space-x-4">
-        <button onClick={() => removeInterview(interview._id)} className="text-red-500 hover:text-red-600 transition">
+        <button
+          onClick={() => removeInterview(interview._id)}
+          className="text-red-500 hover:text-red-600 transition"
+        >
           <DeleteOutlined style={{ fontSize: '18px' }} />
         </button>
-        <button className="text-gray-500 hover:text-gray-600 transition">Copy Link</button>
+        <button onClick={handleCopyLink} className="text-gray-500 hover:text-gray-600 transition">
+          Copy Link
+        </button>
       </div>
 
       {/* Soru İşareti Butonu (Sağ Üstte) */}
       <button
-        onClick={() => setShowQuestions(true)} // Modal açılacak
+        onClick={() => setShowQuestions(true)}
         className="absolute top-2 right-2 bg-blue-900 text-white p-1 rounded-xl hover:bg-blue-800 transition"
       >
         <QuestionCircleOutlined style={{ fontSize: '18px' }} />
@@ -54,8 +78,8 @@ const InterviewCard = ({ interview }) => {
       {/* QuestionInterview Popup */}
       <QuestionInterview
         isVisible={showQuestions}
-        onClose={() => setShowQuestions(false)} // Modalı kapat
-        interview={interview} // Interview bilgilerini geç
+        onClose={() => setShowQuestions(false)}
+        interview={interview}
       />
     </div>
   );

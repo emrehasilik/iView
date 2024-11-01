@@ -6,6 +6,7 @@ import InterviewList from './pages/Interview_List'; // InterviewList bileşeni
 import VideoCollection from './pages/VideoCollection';  // Video Collection sayfası
 
 function App() {
+  
   return (
     <Router>
       <Routes>
