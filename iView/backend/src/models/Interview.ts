@@ -13,6 +13,6 @@ const interviewSchema = new Schema({
   selectedPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuestionPackage", required: true }],
   expireDate: { type: Date, required: true },
   userId: [{ type: mongoose.Schema.Types.ObjectId, ref: "PersonelInformation" }] // Adaylar için referans
-});
+}); 
 
 export default mongoose.model<Interview>("Interview", interviewSchema);

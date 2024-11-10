@@ -1,11 +1,11 @@
-// src/pages/CandidateInfoForm.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import usePersonelInformationStore from '../store/PersonelInformation';
 
 function CandidateInfoForm() {
   const { interviewId } = useParams(); // URL'den interviewId'yi alın
+  const navigate = useNavigate(); // useNavigate hook'unu ekleyin
   const [formValues, setFormValues] = useState({
     name: '',
     surname: '',
@@ -44,8 +44,8 @@ function CandidateInfoForm() {
       setPersonalInfo(formValues); // Zustand store’a kaydet
       alert('Bilgiler başarıyla kaydedildi!');
   
-      // URL'i güncelle ve adayın ID'sini ekle
-      window.history.replaceState(null, "", `/interview/${interviewId}/candidate/${newPersonelId}`);
+      // InterviewQuestions sayfasına yönlendirme yap
+      navigate(`/interview/${interviewId}/${newPersonelId}`);
     } catch (error) {
       console.error('Bilgiler kaydedilirken bir hata oluştu:', error);
       alert('Bilgiler kaydedilirken bir hata oluştu.');

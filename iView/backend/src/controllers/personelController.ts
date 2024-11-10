@@ -5,22 +5,29 @@ import Interview from "../models/Interview";
 
 // Aday Bilgilerini Kaydetme
 export const savePersonelInformation = asyncHandler(async (req: Request, res: Response) => {
-  const { interviewId } = req.params; // URL'den interviewId'yi alıyoruz
+  const { interviewId } = req.params;
   const { name, surname, email, phone, isApproved } = req.body;
 
-  // Yeni aday kaydı oluşturma
-  const newPersonel = new PersonelInformation({ name, surname, email, phone, isApproved });
-  await newPersonel.save();
+  try {
+    // Yeni aday kaydı oluşturma
+    const newPersonel = new PersonelInformation({ name, surname, email, phone, isApproved });
+    await newPersonel.save();
+    console.log('Yeni Personel Kaydedildi:', newPersonel);
+    
+    // Interview dokümanına yeni adayın ID'sini ekle
+    await Interview.findByIdAndUpdate(
+      interviewId,
+      { $push: { userId: newPersonel._id } },
+      { new: true }
+    );
 
-  // Interview dokümanına yeni adayın ID'sini ekle
-  await Interview.findByIdAndUpdate(
-    interviewId,
-    { $push: { userId: newPersonel._id } }, // userId alanına yeni adayın ObjectId'sini ekliyoruz
-    { new: true }
-  );
-
-  res.status(201).json(newPersonel); // Yeni adayın verisini döndürüyoruz
+    res.status(201).json(newPersonel);
+  } catch (error) {
+    console.error('Personel bilgisi kaydedilirken bir hata oluştu:', error);
+    res.status(500).json({ message: 'Personel bilgisi kaydedilemedi.', error });
+  }
 });
+
 
 
 // Interview Soru Paketini Getirme
