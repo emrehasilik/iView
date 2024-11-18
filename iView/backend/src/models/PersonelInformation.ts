@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 interface PersonelInformation extends Document {
   name: string;
@@ -16,4 +16,4 @@ const personelInformationSchema = new Schema({
   isApproved: { type: Boolean, required: true },
 });
 
-export default mongoose.model<PersonelInformation>("PersonelInformation", personelInformationSchema);
+export default mongoose.model<PersonelInformation>('PersonelInformation', personelInformationSchema);

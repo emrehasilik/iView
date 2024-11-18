@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
-import { ObjectId } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
+import { ObjectId } from 'mongoose';
 
 interface Interview extends Document {
   title: string;
@@ -10,9 +10,9 @@ interface Interview extends Document {
 
 const interviewSchema = new Schema({
   title: { type: String, required: true },
-  selectedPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuestionPackage", required: true }],
+  selectedPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'QuestionPackage', required: true }],
   expireDate: { type: Date, required: true },
-  userId: [{ type: mongoose.Schema.Types.ObjectId, ref: "PersonelInformation" }] // Adaylar için referans
-}); 
+  userId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PersonelInformation' }], // Adaylar için referans
+});
 
-export default mongoose.model<Interview>("Interview", interviewSchema);
+export default mongoose.model<Interview>('Interview', interviewSchema);

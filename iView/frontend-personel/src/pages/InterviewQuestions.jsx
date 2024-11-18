@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import usePersonelInformationStore from '../store/PersonelInformation';
 
 function InterviewQuestions() {
-  const { interviewId, candidateId, questionId } = useParams();
+  const { interviewId } = useParams();
+  const personalInfo = usePersonelInformationStore((state) => state.personalInfo);
+  const candidateId = personalInfo?.id;
+
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -13,7 +17,6 @@ function InterviewQuestions() {
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const [recordedBlobs, setRecordedBlobs] = useState([]);
-  const navigate = useNavigate();
 
   const fetchInterviewQuestions = async () => {
     try {
@@ -22,31 +25,31 @@ function InterviewQuestions() {
 
       setQuestions(fetchedQuestions);
       setLoading(false);
+
+      if (fetchedQuestions.length > 0) {
+        setTimeLeft(fetchedQuestions[0].minutes * 60);
+        startRecording();
+      }
     } catch (error) {
-      console.error("Sorular yüklenirken bir hata oluştu:", error);
+      console.error('Sorular yüklenirken bir hata oluştu:', error);
       setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchInterviewQuestions();
-  }, [interviewId]);
 
-  useEffect(() => {
-    if (questions.length > 0) {
-      if (questionId) {
-        const index = questions.findIndex(q => q._id === questionId);
-        if (index !== -1) {
-          setCurrentQuestionIndex(index);
-          setTimeLeft(questions[index].minutes * 60);
-        } else {
-          navigate(`/interview/${interviewId}/${candidateId}/${questions[0]._id}`);
-        }
-      } else {
-        navigate(`/interview/${interviewId}/${candidateId}/${questions[0]._id}`);
+    return () => {
+      // Cleanup
+      if (isRecording) {
+        stopRecording();
       }
-    }
-  }, [questions, questionId]);
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = videoRef.current.srcObject.getTracks();
+        tracks.forEach((track) => track.stop());
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (timeLeft === 0 && !loading) {
@@ -63,30 +66,54 @@ function InterviewQuestions() {
     }
   }, [timeLeft, loading]);
 
-  useEffect(() => {
-    if (questions.length > 0 && !loading) {
-      startRecording();
-    }
-  }, [questions, loading, currentQuestionIndex]);
-
   const startRecording = async () => {
-    setRecordedBlobs([]);
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    videoRef.current.srcObject = stream;
+    try {
+      setRecordedBlobs([]);
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      videoRef.current.srcObject = stream;
 
-    mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm' });
-    mediaRecorderRef.current.ondataavailable = (event) => {
-      if (event.data && event.data.size > 0) {
-        setRecordedBlobs((prev) => [...prev, event.data]);
-      }
-    };
-    mediaRecorderRef.current.start();
-    setIsRecording(true);
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          setRecordedBlobs((prev) => [...prev, event.data]);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = async () => {
+        // Video dosyasını backend'e gönder
+        const blob = new Blob(recordedBlobs, { type: 'video/webm' });
+        const formData = new FormData();
+        formData.append('file', blob, 'video.webm');
+        formData.append('candidateId', candidateId);
+        formData.append('questionId', questions[currentQuestionIndex]._id);
+
+        try {
+          await axios.post(`http://localhost:5000/api/interview/${interviewId}`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          console.log('Video başarıyla yüklendi');
+        } catch (error) {
+          console.error('Video yüklenirken hata oluştu:', error);
+        }
+
+        setRecordedBlobs([]);
+      };
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Kayda başlanırken hata oluştu:', error);
+    }
   };
 
   const stopRecording = () => {
-    mediaRecorderRef.current.stop();
-    setIsRecording(false);
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
   };
 
   const handleNextQuestion = () => {
@@ -97,12 +124,14 @@ function InterviewQuestions() {
       setCurrentQuestionIndex(nextIndex);
       setTimeLeft(questions[nextIndex]?.minutes * 60 || 0);
 
-      const nextQuestionId = questions[nextIndex]._id;
-      navigate(`/interview/${interviewId}/${candidateId}/${nextQuestionId}`);
-
       startRecording();
     } else {
       setFinished(true);
+      // Video akışını durdur
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = videoRef.current.srcObject.getTracks();
+        tracks.forEach((track) => track.stop());
+      }
     }
   };
 
@@ -110,7 +139,11 @@ function InterviewQuestions() {
     if (questions.length === 0 || !questions[currentQuestionIndex]) {
       return 0;
     }
-    return ((questions[currentQuestionIndex].minutes * 60 - timeLeft) / (questions[currentQuestionIndex].minutes * 60)) * 100;
+    return (
+      ((questions[currentQuestionIndex].minutes * 60 - timeLeft) /
+        (questions[currentQuestionIndex].minutes * 60)) *
+      100
+    );
   };
 
   if (loading) {
@@ -149,10 +182,17 @@ function InterviewQuestions() {
           <div>
             <h2 className="text-lg font-semibold mb-2">Question:</h2>
             <p>{questions[currentQuestionIndex]?.question}</p>
-            <p className="mt-4">Time left: {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}</p>
+            <p className="mt-4">
+              Time left:{' '}
+              {Math.floor(timeLeft / 60)
+                .toString()
+                .padStart(2, '0')}
+              :
+              {(timeLeft % 60).toString().padStart(2, '0')}
+            </p>
             <p>Total time for this question: {questions[currentQuestionIndex]?.minutes} minutes</p>
           </div>
-          
+
           <div className="flex justify-between mt-4">
             <button
               onClick={handleNextQuestion}
@@ -160,10 +200,7 @@ function InterviewQuestions() {
             >
               Skip
             </button>
-            <button
-              onClick={handleNextQuestion}
-              className="px-4 py-2 rounded bg-red-500 text-white"
-            >
+            <button onClick={handleNextQuestion} className="px-4 py-2 rounded bg-red-500 text-white">
               Done
             </button>
           </div>

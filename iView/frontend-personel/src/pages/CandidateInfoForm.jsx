@@ -26,38 +26,37 @@ function CandidateInfoForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!formValues.isApproved) {
       alert('KVKK metnini onaylamanız gerekiyor.');
       return;
     }
-  
+
     try {
       // Backend'e form verilerini ve interviewId'yi gönder
       const response = await axios.post(
-        `http://localhost:5000/api/interview/${interviewId}/personel-information`, 
+        `http://localhost:5000/api/interview/${interviewId}/personel-information`,
         formValues
       );
-  
+
       const newPersonelId = response.data._id; // Gelen yanıttan adayın ID'sini al
-  
-      setPersonalInfo(formValues); // Zustand store’a kaydet
+
+      setPersonalInfo({ ...formValues, id: newPersonelId }); // Zustand store’a kaydet
       alert('Bilgiler başarıyla kaydedildi!');
-  
+
       // InterviewQuestions sayfasına yönlendirme yap
-      navigate(`/interview/${interviewId}/${newPersonelId}`);
+      navigate(`/interview/${interviewId}/questions`);
     } catch (error) {
       console.error('Bilgiler kaydedilirken bir hata oluştu:', error);
       alert('Bilgiler kaydedilirken bir hata oluştu.');
     }
   };
-  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <h2 className="text-xl font-bold text-center mb-4">Personal Information Form</h2>
-        
+
         <label className="block mb-2">Name*</label>
         <input
           type="text"
@@ -110,7 +109,10 @@ function CandidateInfoForm() {
           I have read and approved the KVKK text.
         </label>
 
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded w-full hover:bg-blue-600">
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded w-full hover:bg-blue-600"
+        >
           Submit
         </button>
       </form>
