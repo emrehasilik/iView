@@ -6,6 +6,7 @@ import questionRoutes from './routes/questionRoutes';
 import interviewRoutes from './routes/interviewRoutes';
 import personelRoutes from './routes/personelRoutes';
 import uploadRoutes from './routes/upload'; // upload rotasını import edin
+import AdminRouters from './routes/adminRouter';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api', questionRoutes); 
 app.use('/api', interviewRoutes);
 app.use('/api', personelRoutes);
+app.use('/api/' , AdminRouters)
 app.use('/api', uploadRoutes); // upload rotasını ekleyin
 
 // MongoDB bağlantısı
